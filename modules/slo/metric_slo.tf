@@ -48,8 +48,9 @@ resource "datadog_service_level_objective" "metric_slo" {
   # If a key is supplied without a value (null), it will render "key" as a tag
   #   tags:
   #     key: null
-  tags = [
-    for tagk, tagv in lookup(each.value, "tags", module.this.tags) : (tagv != null ? format("%s:%s", tagk, tagv) : tagk)
+  tags = try(tolist(each.value.tags), null) != null ? try(tolist(each.value.tags), null) : [
+    # If the user has supplied a map of tags, use it. Otherwise, use the default tags if enabled.
+    for tagk, tagv in try(tomap(each.value.tags), var.default_tags_enabled ? module.this.tags : {}) : (tagv != null ? format("%s:%s", tagk, tagv) : tagk)
   ]
 }
 
@@ -76,7 +77,8 @@ resource "datadog_monitor" "metric_slo_alert" {
   # If a key is supplied without a value (null), it will render "key" as a tag
   #   tags:
   #     key: null
-  tags = [
-    for tagk, tagv in lookup(each.value.slo, "tags", module.this.tags) : (tagv != null ? format("%s:%s", tagk, tagv) : tagk)
+  tags = try(tolist(each.value.slo.tags), null) != null ? try(tolist(each.value.slo.tags), null) : [
+    # If the user has supplied a map of tags, use it. Otherwise, use the default tags if enabled.
+    for tagk, tagv in try(tomap(each.value.slo.tags), var.default_tags_enabled ? module.this.tags : {}) : (tagv != null ? format("%s:%s", tagk, tagv) : tagk)
   ]
 }
