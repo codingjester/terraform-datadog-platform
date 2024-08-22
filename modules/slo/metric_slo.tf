@@ -79,6 +79,6 @@ resource "datadog_monitor" "metric_slo_alert" {
   #     key: null
   tags = try(tolist(each.value.slo.tags), null) != null ? try(tolist(each.value.slo.tags), null) : [
     # If the user has supplied a map of tags, use it. Otherwise, use the default tags if enabled.
-    for tagk, tagv in try(tomap(each.value.tags), var.default_tags_enabled ? module.this.tags : {}) : (tagv != null ? format("%s:%s", tagk, tagv) : tagk)
+    for tagk, tagv in try(tomap(each.value.slo.tags), var.default_tags_enabled ? module.this.tags : {}) : (tagv != null ? format("%s:%s", tagk, tagv) : tagk)
   ]
 }
